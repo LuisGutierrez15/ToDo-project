@@ -21,8 +21,6 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "21"
-      - name: Change to Backend Dictory
-        run: cd to_do_backend
 
       - name: Cache Maven Dependencies
         uses: actions/cache@v3
