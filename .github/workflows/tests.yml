@@ -1,0 +1,58 @@
+name: CI - Run tests
+
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  backend-tests:
+    name: Run Spring Boot Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./to_do_backend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: maven-${{ hashFiles('**/pom.xml')}}
+          restore-keys: |
+            maven-
+
+      - name: Run Tests
+        run: mvn test
+
+  frontend-tests:
+    name: Run Vitest Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./to_do_frontend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Setup Node 21
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test
