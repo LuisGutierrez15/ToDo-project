@@ -35,8 +35,8 @@ public class ToDoRepository implements IToDoRepository {
     }
 
     @Override
-    public boolean deleteById(Long id) {
-        return toDos.remove(id, findById(id));
+    public ToDo deleteById(Long id) {
+        return toDos.remove(id);
     }
 
     @Override

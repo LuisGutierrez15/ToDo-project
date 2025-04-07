@@ -1,11 +1,13 @@
 package com.gupiluan.to_do_backend.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gupiluan.to_do_backend.model.ApiResponse;
+import com.gupiluan.to_do_backend.model.Pagination;
 import com.gupiluan.to_do_backend.model.Priority;
 import com.gupiluan.to_do_backend.model.ToDo;
 import com.gupiluan.to_do_backend.service.ToDoService;
@@ -30,14 +33,16 @@ public class ToDoController {
     private ToDoService toDoService;
 
     @GetMapping
-    public List<ToDo> getAll(@RequestParam(required = false, defaultValue = "0") int page,
+    public ResponseEntity<Pagination<List<ToDo>>> getAll(@RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size,
             @RequestParam(required = false) String complete,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Priority priority,
             @RequestParam(required = false) String sortByPriority,
             @RequestParam(required = false) String sortByDueDate) {
-        return toDoService.getAllToDos(page, size, name, complete, priority, sortByDueDate, sortByPriority);
+        Pagination<List<ToDo>> pagination = toDoService.getAllToDos(page, size, name, complete, priority, sortByDueDate,
+                sortByPriority);
+        return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -81,11 +86,20 @@ public class ToDoController {
         return new ResponseEntity<>(response, updated ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<ToDo>> deleteToDo(@PathVariable Long id) {
+        ToDo deleted = toDoService.deleteToDo(id);
+        String message = deleted != null ? "success" : "error";
+        ApiResponse<ToDo> response = new ApiResponse<>(message, deleted);
+        return new ResponseEntity<>(response, deleted != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+    }
+
     @GetMapping("/stats")
-    public ResponseEntity<ApiResponse<Float>> getStatistics(@RequestParam(required = false) Priority priority) {
-        float stat = toDoService.getAvgFromAll(priority);
+    public ResponseEntity<ApiResponse<Map<Priority, Integer>>> getStatistics() {
+        Map<Priority, Integer> stat = toDoService.getAvgFromAll();
         String message = "success";
-        ApiResponse<Float> response = new ApiResponse<>(message, stat);
+        ApiResponse<Map<Priority, Integer>> response = new ApiResponse<>(message, stat);
+        System.out.println(response);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

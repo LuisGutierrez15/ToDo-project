@@ -100,7 +100,7 @@ public class ToDoServiceTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     public void setDone() {
         Long toDoId = 1L;
         findById();
@@ -109,7 +109,7 @@ public class ToDoServiceTest {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     public void setUnDone() {
         Long toDoId = 1L;
         findById();
@@ -118,7 +118,7 @@ public class ToDoServiceTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     public void setDoneIfNoExists() {
         Long toDoId = 2L;
         findById();
@@ -127,7 +127,7 @@ public class ToDoServiceTest {
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     public void setUnDoneIfNoExists() {
         Long toDoId = 2L;
         findById();
@@ -136,20 +136,93 @@ public class ToDoServiceTest {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     public void getFirstPage() {
         getAll();
-        int length = toDoService.getAllToDos(0, 10, null, null, null, null, null).size();
-        assertTrue(length > 0);
+        int lengthOfPage = toDoService.getAllToDos(0, 10, null, null, null, null, null).getData().size();
+        assertTrue(lengthOfPage > 0);
 
     }
 
     @Test
-    @Order(11)
+    @Order(12)
     public void getSecondPage() {
         getAll();
-        int length = toDoService.getAllToDos(1, 10, null, null, null, null, null).size();
-        assertTrue(length == 0);
+        int lengthOfPage = toDoService.getAllToDos(1, 10, null, null, null, null, null).getData().size();
+        assertTrue(lengthOfPage == 0);
+    }
+
+    @Test
+    @Order(13)
+    public void updateExistingToDo() {
+        updateById();
+        findById();
+        Long id = 1L;
+        ToDo toDoToChange = toDoService.getToDo(id);
+        toDoToChange.setText("new text");
+        boolean updated = toDoService.updateToDo(id, toDoToChange);
+        assertTrue(updated);
+    }
+
+    @Test
+    @Order(14)
+    public void updateExistingToDoWithErrorTextLength() {
+        updateById();
+        findById();
+        Long id = 1L;
+        ToDo toDoToChange = toDoService.getToDo(id);
+        String textgreater120 = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest" +
+                "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
+        toDoToChange.setText(textgreater120);
+        boolean updated = toDoService.updateToDo(id, toDoToChange);
+        assertFalse(updated);
+    }
+
+    @Test
+    @Order(15)
+    public void updateExistingToDoWithErrorPriority() {
+        updateById();
+        findById();
+        Long id = 1L;
+        ToDo toDoToChange = toDoService.getToDo(id);
+        toDoToChange.setPriority(null);
+        boolean updated = toDoService.updateToDo(id, toDoToChange);
+        assertFalse(updated);
+    }
+
+    @Test
+    @Order(16)
+    public void updateNonExistingToDo() {
+        updateById();
+        findById();
+        Long id = 2L;
+        ToDo toDoToChange = toDoService.getToDo(id);
+        if (toDoToChange != null) {
+            toDoToChange.setText("new text");
+
+        }
+        boolean updated = toDoService.updateToDo(id, toDoToChange);
+        assertFalse(updated);
+    }
+
+    @Test
+    @Order(17)
+    public void deleteNonExistingToDo() {
+        deleteById();
+        findById();
+        Long id = 2L;
+        ToDo deleted = toDoService.deleteToDo(id);
+        assertNull(deleted);
+    }
+
+    @Test
+    @Order(18)
+    public void deleteExistingToDo() {
+        deleteById();
+        findById();
+        Long id = 1L;
+        ToDo deleted = toDoService.deleteToDo(id);
+        assertNotNull(deleted);
     }
 
     private void createToDo() {
@@ -185,8 +258,17 @@ public class ToDoServiceTest {
             public Boolean answer(InvocationOnMock invocationOnMock) throws Throwable {
                 ToDo toDo = (ToDo) invocationOnMock.getArguments()[0];
                 Long id = toDo.getId();
-                ToDo toDoOld = toDoRepository.findById(id).get();
+                ToDo toDoOld = toDoRepository.findById(id).orElse(null);
                 return toDos.replace(id, toDoOld, toDo);
+            }
+        });
+    }
+
+    private void deleteById() {
+        when(toDoRepository.deleteById(anyLong())).thenAnswer(new Answer<ToDo>() {
+            public ToDo answer(InvocationOnMock invocationOnMock) throws Throwable {
+                Long id = (Long) invocationOnMock.getArguments()[0];
+                return toDos.remove(id);
             }
         });
     }

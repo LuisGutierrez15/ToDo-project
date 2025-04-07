@@ -2,13 +2,16 @@ package com.gupiluan.to_do_backend.service;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.gupiluan.to_do_backend.model.Pagination;
 import com.gupiluan.to_do_backend.model.Priority;
 import com.gupiluan.to_do_backend.model.ToDo;
 import com.gupiluan.to_do_backend.repository.IToDoRepository;
@@ -26,7 +29,7 @@ public class ToDoService {
         return toDo.getText().length() <= 120 && toDo.getPriority() != null && toDoRepository.save(toDo) != null;
     }
 
-    public List<ToDo> getAllToDos(int page, int size, String name, String complete, Priority priority,
+    public Pagination<List<ToDo>> getAllToDos(int page, int size, String name, String complete, Priority priority,
             String sortByDueDate, String sortByPriority) {
 
         Comparator<ToDo> firstComparator = getComparator(ToDo::getDueDate, sortByDueDate);
@@ -43,23 +46,28 @@ public class ToDoService {
         int start = page * size;
         int end = Math.min(start + size, total);
         List<ToDo> pageContent = (start > total) ? List.of() : listOfToDo.subList(start, end);
-        return pageContent;
+        String message = pageContent.size() > 0 ? "success" : "empty";
+        return new Pagination<List<ToDo>>(message, pageContent, total);
     }
 
-    public float getAvgFromAll() {
-        return getAvgFromAll(null);
+    public ToDo deleteToDo(Long id) {
+        return toDoRepository.deleteById(id);
     }
 
-    public float getAvgFromAll(Priority priority) {
-        int result = 0;
-        List<ToDo> all = toDoRepository.findAll().stream().filter(t -> t.isDoneFlag() == true)
-                .filter(t -> priority == null || t.getPriority() == priority)
-                .collect(Collectors.toList());
-        for (ToDo toDo : all) {
-            result += toDoRepository.getDurationBetween(toDo.getCreationTime(), toDo.getDoneDate()).toMinutesPart();
+    public Map<Priority, Integer> getAvgFromAll() {
+        Map<Priority, Integer> map = new HashMap<>();
+        for (Priority p : Priority.values()) {
+            int result = 0;
+            List<ToDo> all = toDoRepository.findAll().stream().filter(t -> t.isDoneFlag() == true)
+                    .filter(t -> t.getPriority() == p)
+                    .collect(Collectors.toList());
+            for (ToDo toDo : all) {
+                result += toDoRepository.getDurationBetween(toDo.getCreationTime(), toDo.getDoneDate()).toMinutesPart();
+            }
+            int size = all.size();
+            map.put(p, size > 0 ? result / all.size() : 0);
         }
-        int size = all.size();
-        return size > 0 ? result / all.size() : 0;
+        return map;
     }
 
     public boolean markDone(Long id) {
@@ -88,13 +96,14 @@ public class ToDoService {
             return false;
         }
         toDo.setId(id);
-        return toDoRepository.update(toDo);
+        return toDo.getText().length() <= 120 && toDo.getPriority() != null && toDoRepository.update(toDo);
     }
 
     private <T, U extends Comparable<? super U>> Comparator<ToDo> getComparator(
             Function<? super ToDo, ? extends U> keyStractor, String order) {
         Comparator<ToDo> defaultComparator = Comparator.comparing(e -> 0);
-        Comparator<ToDo> resultComparator = Comparator.comparing(keyStractor);
+        Comparator<ToDo> resultComparator = Comparator.comparing(keyStractor,
+                Comparator.nullsLast(Comparator.naturalOrder()));
         resultComparator = order != null
                 ? order.equalsIgnoreCase("asc") ? resultComparator : resultComparator.reversed()
                 : defaultComparator;
