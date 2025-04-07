@@ -16,7 +16,7 @@ public interface IToDoRepository {
 
     boolean update(ToDo toDo);
 
-    boolean deleteById(Long id);
+    ToDo deleteById(Long id);
 
     Duration getDurationBetween(LocalDateTime a, LocalDateTime b);
 
