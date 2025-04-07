@@ -62,7 +62,7 @@ public class ToDoService {
                     .filter(t -> t.getPriority() == p)
                     .collect(Collectors.toList());
             for (ToDo toDo : all) {
-                result += toDoRepository.getDurationBetween(toDo.getCreationTime(), toDo.getDoneDate()).toMinutesPart();
+                result += toDoRepository.getDurationBetween(toDo.getCreationTime(), toDo.getDoneDate()).toMinutes();
             }
             int size = all.size();
             map.put(p, size > 0 ? result / all.size() : 0);
