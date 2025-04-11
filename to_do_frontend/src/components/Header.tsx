@@ -1,34 +1,45 @@
-import { FC, useState } from "react";
-import Input from "./Input";
+import { Dispatch, FC, SetStateAction, useRef } from "react";
+
 import StatusSelection from "./StatusSelection";
 import PrioritySelection from "./PrioritySelection";
-import Button from "./Button";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
 
-const Header: FC = () => {
-  const [text, setText] = useState<string>("");
-  const handleOnSubmit = () => {};
-  const handleOnChange = (value: any) => setText(value);
+type HeaderProps = {
+  setText: Dispatch<SetStateAction<string>>;
+  setStatus: Dispatch<SetStateAction<number | null>>;
+  setPriority: Dispatch<SetStateAction<number | null>>;
+};
 
+const Header: FC<HeaderProps> = ({ setText, setPriority, setStatus }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const handleOnSubmit = () => {
+    if (inputRef.current) {
+      setText(inputRef.current.value);
+      inputRef.current.value = "";
+    }
+  };
   return (
     <header className="w-full items-center">
-      <div className="flex-col m-6 p-6 rounded-lg shadow-md border-2 border-amber-800">
-        <div className="flex flex-row items-center space-x-3 p-2">
-          <Input
-            placeHolder="text"
-            value={text}
-            type="text"
-            onSubmit={handleOnSubmit}
-            onChange={handleOnChange}
-          >
-            <label htmlFor="input-text">Name</label>
-          </Input>
+      <div className="flex-col m-6 p-6 rounded-lg shadow-md border-2 border-gray-200">
+        <div className="flex flex-row items-center p-2">
+          <TextField
+            inputRef={inputRef}
+            fullWidth
+            id="filled-basic"
+            label="Name"
+            variant="filled"
+            color="info"
+          />
         </div>
-        <div className="flex-row flex justify-between items-end">
-          <div className="flex-col">
-            <PrioritySelection />
-            <StatusSelection />
+        <div className="flex-row flex justify-between items-center">
+          <div className="flex">
+            <PrioritySelection setValue={setPriority} />
+            <StatusSelection setValue={setStatus} />
           </div>
-          <Button onClick={() => {}}>Search</Button>
+          <Button color="info" variant="contained" onClick={handleOnSubmit}>
+            Search
+          </Button>
         </div>
       </div>
     </header>

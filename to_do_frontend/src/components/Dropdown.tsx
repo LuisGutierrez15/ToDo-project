@@ -10,10 +10,10 @@ type DropdownProps = {
 const Dropdown: FC<DropdownProps> = ({ label, options, onChange }) => {
   return (
     <>
-      <div className="p-2 flex-row flex items-center text-center justify-evenly">
+      <div className="p-1 flex-row flex items-center text-center justify-evenly">
         <label
           htmlFor={`dropdown-${label}`}
-          className="mx-4 block text-base font-medium text-shadow dark:text-white dark:bg-amber-900 min-w-1/2"
+          className="ml-2 block text-base font-medium text-shadow text-gray-500 min-w-1/2"
         >
           {label}
         </label>
@@ -23,7 +23,7 @@ const Dropdown: FC<DropdownProps> = ({ label, options, onChange }) => {
             onChange={(e: ChangeEvent<HTMLSelectElement>) =>
               onChange(e.target.value as unknown as number)
             }
-            className="cursor-pointer relative z-20 w-fit appearance-none rounded-lg border border-stroke dark:border-gray-300 bg-transparent py-[10px] pr-9 pl-1 text-gray-400 outline-none transition focus:border-gray-500 active:border-gray-400 disabled:cursor-default disabled:bg-gray-200"
+            className="cursor-pointer relative z-20 w-fit appearance-none rounded-lg border border-stroke border-gray-300 bg-transparent py-[10px] pl-1.5 pr-9 text-gray-400 outline-none transition focus:border-gray-500 active:border-gray-400 disabled:cursor-default disabled:bg-gray-200"
           >
             <option value={undefined} className="dark:bg-dark-2">
               All

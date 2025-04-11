@@ -1,11 +1,11 @@
 import { Priority } from "./Priority";
 
 export type ToDo = {
-  id: number;
+  id?: number;
   text: string;
-  dueDate: Date | null;
-  doneFlag: boolean;
-  doneDate: Date | null;
-  priority: Priority;
-  creationTime: Date;
+  dueDate: Date | null | string;
+  doneFlag?: boolean;
+  doneDate?: Date | null | string;
+  priority: Priority | undefined;
+  creationTime?: Date;
 };

@@ -1,18 +1,23 @@
-import Button from "../Button";
-import { useRef, useState } from "react";
-import Modal from "../Modal";
+import { Alert, Modal, Snackbar } from "@mui/material";
+import Button from "@mui/material/Button";
+import { FC } from "react";
+import NewToDoForm from "./NewToDoForm";
+import { useCloseModal } from "../../hooks/useCloseModal";
 
-function ButtonNewTodo() {
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const trigger = useRef<HTMLDivElement>(null);
+const ButtonNewTodo: FC = () => {
+  const { modalOpen, setModalOpen, setSuccess, success, handleClose } =
+    useCloseModal();
+
   return (
     <>
-      <Modal
-        trigger={trigger}
-        modalOpen={modalOpen}
-        setModalOpen={setModalOpen}
-      />
-      <Button ref={trigger} onClick={() => setModalOpen(true)}>
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <NewToDoForm setModalOpen={setModalOpen} setSuccess={setSuccess} />
+      </Modal>
+      <Button
+        variant="contained"
+        color="inherit"
+        onClick={() => setModalOpen(true)}
+      >
         New To Do
         <span className="ml-[10px]">
           <svg
@@ -35,8 +40,20 @@ function ButtonNewTodo() {
           </svg>
         </span>
       </Button>
+      {success && (
+        <Snackbar open={success} autoHideDuration={3000} onClose={handleClose}>
+          <Alert
+            onClose={handleClose}
+            severity="success"
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            ToDo successfully added!
+          </Alert>
+        </Snackbar>
+      )}
     </>
   );
-}
+};
 
 export default ButtonNewTodo;
