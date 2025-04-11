@@ -50,8 +50,8 @@ public class ToDoServiceTest {
     public void createSuccess() {
         createToDo();
         ToDo toDo = new ToDo(null, "test", null, Priority.MEDIUM);
-        boolean response = toDoService.createToDo(toDo);
-        assertTrue(response);
+        ToDo response = toDoService.createToDo(toDo);
+        assertNotNull(response);
     }
 
     @Test
@@ -61,8 +61,8 @@ public class ToDoServiceTest {
         String textgreater120 = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest" +
                 "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
         ToDo toDo = new ToDo(null, textgreater120, null, Priority.MEDIUM);
-        boolean response = toDoService.createToDo(toDo);
-        assertFalse(response);
+        ToDo response = toDoService.createToDo(toDo);
+        assertNull(response);
     }
 
     @Test
@@ -70,8 +70,8 @@ public class ToDoServiceTest {
     public void createErrorNoPriority() {
         createToDo();
         ToDo toDo = new ToDo(null, "test", null, null);
-        boolean response = toDoService.createToDo(toDo);
-        assertFalse(response);
+        ToDo response = toDoService.createToDo(toDo);
+        assertNull(response);
     }
 
     @Test
@@ -79,8 +79,8 @@ public class ToDoServiceTest {
     public void createErrorSameId() {
         createToDo();
         ToDo toDo = new ToDo(1L, "test", null, null);
-        boolean response = toDoService.createToDo(toDo);
-        assertFalse(response);
+        ToDo response = toDoService.createToDo(toDo);
+        assertNull(response);
     }
 
     @Test
