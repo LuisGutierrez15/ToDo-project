@@ -25,8 +25,10 @@ public class ToDoService {
         return toDoRepository.findById(id).orElse(null);
     }
 
-    public boolean createToDo(ToDo toDo) {
-        return toDo.getText().length() <= 120 && toDo.getPriority() != null && toDoRepository.save(toDo) != null;
+    public ToDo createToDo(ToDo toDo) {
+        return toDo.getText().length() > 0 && toDo.getText().length() <= 120 && toDo.getPriority() != null
+                ? toDoRepository.save(toDo)
+                : null;
     }
 
     public Pagination<List<ToDo>> getAllToDos(int page, int size, String name, String complete, Priority priority,
@@ -41,6 +43,8 @@ public class ToDoService {
                 .filter(t -> priority == null || t.getPriority() == priority)
                 .sorted(firstComparator.thenComparing(secondComparator))
                 .collect(Collectors.toList());
+
+        listOfToDo.sort(Comparator.comparing(ToDo::getId));
 
         int total = listOfToDo.size();
         int start = page * size;
@@ -62,7 +66,7 @@ public class ToDoService {
                     .filter(t -> t.getPriority() == p)
                     .collect(Collectors.toList());
             for (ToDo toDo : all) {
-                result += toDoRepository.getDurationBetween(toDo.getCreationTime(), toDo.getDoneDate()).toMinutesPart();
+                result += toDoRepository.getDurationBetween(toDo.getCreationTime(), toDo.getDoneDate()).toMinutes();
             }
             int size = all.size();
             map.put(p, size > 0 ? result / all.size() : 0);
@@ -96,7 +100,8 @@ public class ToDoService {
             return false;
         }
         toDo.setId(id);
-        return toDo.getText().length() <= 120 && toDo.getPriority() != null && toDoRepository.update(toDo);
+        return toDo.getText().length() > 0 && toDo.getText().length() <= 120 && toDo.getPriority() != null
+                && toDoRepository.update(toDo);
     }
 
     private <T, U extends Comparable<? super U>> Comparator<ToDo> getComparator(

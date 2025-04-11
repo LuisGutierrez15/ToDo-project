@@ -12,41 +12,45 @@ import { ToDo } from "../../types/ToDo";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { createToDo } from "../../api/toDoService";
+
+import dayjs from "dayjs";
 import { useDispatch } from "react-redux";
-import { addRow } from "../../store/slices/rowsSlice";
+
 import {
-  handleClearError,
   handleDueDateChange,
   handlePriorityChange,
   handleTextChange,
 } from "../../helpers/handlersHelpers";
+import { updateToDo } from "../../api/toDoService";
+import { updateRow } from "../../store/slices/rowsSlice";
 
-type NewToDoFormProps = {
+type EditToDoFormProps = {
+  setEditRow: Dispatch<SetStateAction<ToDo>>;
   setModalOpen: Dispatch<SetStateAction<boolean>>;
+  row: ToDo;
   setSuccess: Dispatch<SetStateAction<boolean>>;
 };
 
-const NewToDoForm: FC<NewToDoFormProps> = ({ setModalOpen, setSuccess }) => {
+const EditToDoForm: FC<EditToDoFormProps> = ({
+  setModalOpen,
+  setEditRow,
+  row,
+  setSuccess,
+}) => {
   const dispatch = useDispatch();
   const [error, setError] = useState<string>("");
-  const [newRow, setNewRow] = useState<ToDo>({
-    text: "",
-    dueDate: null,
-    priority: undefined,
-  });
 
-  const handleSubmit = async () => {
-    const response = await createToDo(newRow);
-
-    if (response.message === "success") {
-      setModalOpen(false);
-      dispatch(addRow(response.data));
+  const handleSubmitEdit = async () => {
+    const response = await updateToDo(row.id!, row);
+    if (response.data) {
+      dispatch(updateRow(row));
       setSuccess(true);
+      setModalOpen(false);
     } else {
       setError("Some fields were incorrect");
     }
   };
+
   return (
     <Box
       sx={{
@@ -63,7 +67,7 @@ const NewToDoForm: FC<NewToDoFormProps> = ({ setModalOpen, setSuccess }) => {
       }}
     >
       <h2 className="mb-2 text-2xl text-gray-600 text-shadow font-stretch-75%">
-        New To Do
+        Edit To Do
       </h2>
       {error.length > 0 && (
         <h2 className="mb-2 text-red-500 text-shadow font-sans text-sm">
@@ -73,30 +77,27 @@ const NewToDoForm: FC<NewToDoFormProps> = ({ setModalOpen, setSuccess }) => {
       <TextField
         label="Name"
         fullWidth
-        onChange={(event) => handleTextChange(event, setNewRow)}
-        onFocus={() => handleClearError(setError)}
+        value={row.text}
+        onChange={(event) => handleTextChange(event, setEditRow)}
         sx={{ mb: 2 }}
         error={
-          error.length > 0 &&
-          (newRow.text.length == 0 || newRow.text.length > 120)
+          error.length > 0 && (row.text.length == 0 || row.text.length > 120)
         }
       />
       <FormControl fullWidth sx={{ mb: 2 }}>
         <InputLabel id="priority-label">Priority</InputLabel>
         <Select
-          onFocus={() => handleClearError(setError)}
           labelId="priority-label"
           label="Priority"
-          value={(newRow.priority as unknown as string) ?? ""}
-          onChange={(event) => handlePriorityChange(event, setNewRow)}
-          error={error.length > 0 && newRow.priority == undefined}
+          value={row.priority as unknown as string}
+          onChange={(event) => handlePriorityChange(event, setEditRow)}
+          error={error.length > 0 && row.priority == undefined}
         >
-          <MenuItem hidden />
           {Object.values(Priority).map(
             (value) =>
-              typeof value === "number" && (
+              typeof value === "string" && (
                 <MenuItem value={value} key={value}>
-                  {Priority[value]}
+                  {value}
                 </MenuItem>
               )
           )}
@@ -106,8 +107,9 @@ const NewToDoForm: FC<NewToDoFormProps> = ({ setModalOpen, setSuccess }) => {
         <DatePicker
           label="Due Date (optional)"
           disablePast
+          value={row.dueDate ? dayjs(row.dueDate) : null}
           onChange={(newValue) =>
-            handleDueDateChange(newValue?.toISOString() || "", setNewRow)
+            handleDueDateChange(newValue?.toISOString() || "", setEditRow)
           }
           slotProps={{
             field: { clearable: true },
@@ -121,7 +123,7 @@ const NewToDoForm: FC<NewToDoFormProps> = ({ setModalOpen, setSuccess }) => {
         }}
         variant="contained"
         color="inherit"
-        onClick={handleSubmit}
+        onClick={handleSubmitEdit}
       >
         Submit
       </Button>
@@ -129,4 +131,4 @@ const NewToDoForm: FC<NewToDoFormProps> = ({ setModalOpen, setSuccess }) => {
   );
 };
 
-export default NewToDoForm;
+export default EditToDoForm;

@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { Dispatch, FC, SetStateAction } from "react";
 import { Option } from "../types/Option";
 import { Status } from "../types/Status";
 import Dropdown from "./Dropdown";
@@ -14,9 +14,11 @@ const options: Option[] = [
   },
 ];
 
-const StatusSelection: FC = () => {
-  const [value, setValue] = useState<number | undefined>(undefined);
-  //console.log(value);
+type StatusSelectionProps = {
+  setValue: Dispatch<SetStateAction<number | null>>;
+};
+
+const StatusSelection: FC<StatusSelectionProps> = ({ setValue }) => {
   return <Dropdown onChange={setValue} options={options} label="State" />;
 };
 

@@ -55,11 +55,11 @@ public class ToDoController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Boolean>> createToDo(@RequestBody @Valid ToDo toDo) {
-        boolean created = toDoService.createToDo(toDo);
-        String message = created ? "success" : "error";
-        ApiResponse<Boolean> response = new ApiResponse<>(message, created);
-        return new ResponseEntity<>(response, created ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ApiResponse<ToDo>> createToDo(@RequestBody @Valid ToDo toDo) {
+        ToDo created = toDoService.createToDo(toDo);
+        String message = created != null ? "success" : "error";
+        ApiResponse<ToDo> response = new ApiResponse<>(message, created);
+        return new ResponseEntity<>(response, created != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/{id}")
@@ -99,7 +99,6 @@ public class ToDoController {
         Map<Priority, Integer> stat = toDoService.getAvgFromAll();
         String message = "success";
         ApiResponse<Map<Priority, Integer>> response = new ApiResponse<>(message, stat);
-        System.out.println(response);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
