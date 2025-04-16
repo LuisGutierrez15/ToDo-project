@@ -10,6 +10,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.gupiluan.to_do_backend.utils.TestUtils;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -156,6 +159,15 @@ public class ToDoControllerTest {
         @Order(13)
         public void deleteToDoNonExisting() throws Exception {
                 mockMvc.perform(delete("/todos/2")).andExpect(status().isBadRequest()).andDo(document("delete-todo"));
+        }
+
+        @Test
+        @Order(14)
+        public void createToDos() throws Exception {
+                String toDoJSON = TestUtils.readJSONFile("todo_list.json");
+                mockMvc.perform(post("/todos/many").contentType(MediaType.APPLICATION_JSON).content(toDoJSON))
+                                .andExpect(status().isCreated()).andDo(document("create-todo-many"));
+
         }
 
 }
