@@ -1,54 +1,82 @@
-# React + TypeScript + Vite
+# Frontend ToDo-project
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web application built with React and TypeScript that allows users to manage their tasks efficiently. With advanced filtering, sorting, pagination, and real-time metrics.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Node 21**
+- **React** + **TypeScript**
+- **Vite** – Fast build tool and development server
+- **Material UI (MUI)** – UI components library
+  - Includes **Data Grid Pro** (for testing only, not for production)
+- **Redux Toolkit** – Global state management
+- **Axios** - HTTP client for API communication
+- **Vitest** – Unit testing framework
+- **Custom styling** – Tailored UI components and styles using **Tailwind**
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Create, edit, and delete tasks
+- Filter tasks by:
+  - Task name (partial match)
+  - Priority
+  - Status (done / undone)
+- Sort tasks by:
+  - Due date
+  - Priority
+  - (Both only available with MUI Pro)
+- Pagination to navigate large lists
+- Mark all tasks on a page as done or undone, or toggle individual tasks
+- Footer with real-time metrics:
+  - Average resolution time per priority
+  - Overall average time
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Project Structure
+
+```bash
+/src
+  ├── api         # Axios instance and API request functions
+  ├── assets      # Static files (images, icons, etc.)
+  ├── components  # Reusable UI components
+  ├── helpers     # Utility and formatting functions
+  ├── hooks       # Custom React hooks
+  ├── store       # Redux Toolkit slices and store setup
+  ├── tests       # Unit and integration tests
+  └── types       # TypeScript type definitions
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Feedback & Validation
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+The app provides real-time feedback to the user:
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+- Success messages when tasks are added or updated
+- Error messages when required fields are missing
+
+## How to Run
+
+1. Make sure you have **Node 21** installed.
+2. Navigate to the frontend project directory.
+3. Install dependencies and start the app with the following commands:
+
+```bash
+npm install
+npm run start
 ```
+
+## Testing
+
+To run tests run the following comand:
+
+```bash
+npm run tests
+```
+
+The app will be available at:  
+**`http://localhost:8080`**
+
+## Notes
+
+- Data Grid Pro from MUI is used for testing purposes only; no license is currently active.
+- The app is designed to integrate seamlessly with the Spring Boot backend on port **9090**.
+
+Developed by **Luis Angel Gutierrez Pineda**
