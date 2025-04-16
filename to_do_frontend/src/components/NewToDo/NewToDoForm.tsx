@@ -38,7 +38,6 @@ const NewToDoForm: FC<NewToDoFormProps> = ({ setModalOpen, setSuccess }) => {
 
   const handleSubmit = async () => {
     const response = await createToDo(newRow);
-
     if (response.message === "success") {
       setModalOpen(false);
       dispatch(addRow(response.data));
@@ -119,6 +118,7 @@ const NewToDoForm: FC<NewToDoFormProps> = ({ setModalOpen, setSuccess }) => {
         sx={{
           mt: 2,
         }}
+        role="submit"
         variant="contained"
         color="inherit"
         onClick={handleSubmit}

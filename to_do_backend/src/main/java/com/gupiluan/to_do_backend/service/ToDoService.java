@@ -38,13 +38,12 @@ public class ToDoService {
         Comparator<ToDo> secondComparator = getComparator(ToDo::getPriority, sortByPriority);
 
         List<ToDo> listOfToDo = toDoRepository.findAll().stream()
+                .sorted(Comparator.comparing(ToDo::getId))
                 .filter(t -> name == null || t.getText().toLowerCase().contains(name.toLowerCase()))
                 .filter(t -> complete == null || t.isDoneFlag() == complete.equalsIgnoreCase("done"))
                 .filter(t -> priority == null || t.getPriority() == priority)
                 .sorted(firstComparator.thenComparing(secondComparator))
                 .collect(Collectors.toList());
-
-        listOfToDo.sort(Comparator.comparing(ToDo::getId));
 
         int total = listOfToDo.size();
         int start = page * size;

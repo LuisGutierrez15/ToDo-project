@@ -1,11 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import rowReducer from "./slices/rowsSlice";
-import paramsSlice from "./slices/paramsSlice";
+import paramsReducer from "./slices/paramsSlice";
 
 export const store = configureStore({
   reducer: {
     rows: rowReducer,
-    params: paramsSlice,
+    params: paramsReducer,
   },
 });
 
