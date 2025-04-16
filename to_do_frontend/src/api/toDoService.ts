@@ -3,7 +3,7 @@ import { axiosInstance } from "./axiosInstance";
 import { Parameters } from "../types/Parameters";
 import { ToDo } from "../types/ToDo";
 
-export const getToDos = async (params: Parameters) => {
+export const getToDos = async (params: Parameters | null) => {
   try {
     const response = await axiosInstance.get("", { params });
     return response.data;

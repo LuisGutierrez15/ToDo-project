@@ -121,6 +121,7 @@ const EditToDoForm: FC<EditToDoFormProps> = ({
         sx={{
           mt: 2,
         }}
+        role="submit"
         variant="contained"
         color="inherit"
         onClick={handleSubmitEdit}

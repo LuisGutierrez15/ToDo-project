@@ -1,39 +1,20 @@
-import { FC, useEffect, useState } from "react";
-import { Stats } from "../types/Stats";
-import { getStats } from "../api/toDoService";
-import { Priority } from "../types/Priority";
-import { formatMinutesToStringDDhhmm } from "../helpers/formatHelpers";
-import { useSelector } from "react-redux";
-import { selectAllToDos } from "../store/selectors/rowsSelector";
-const Footer: FC = () => {
-  const [stats, setStats] = useState<Stats>();
-  const rows = useSelector(selectAllToDos);
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await getStats();
-      setStats(response.data);
-    };
-    fetchData();
-  }, [rows]);
+import { FC } from "react";
 
+import { formatMinutesToStringDDhhmm } from "../helpers/formatHelpers";
+import { useFetchStats } from "../hooks/useFetchStats";
+
+const Footer: FC = () => {
+  const result = useFetchStats();
   let total = 0;
-  const values =
-    stats &&
-    Object.entries(stats)
-      .sort(
-        ([a], [b]) =>
-          Object.values(Priority).indexOf(a) -
-          Object.values(Priority).indexOf(b)
-      )
-      .map(([k, v], i) => {
-        total += v;
-        return (
-          <div className="justify-between flex flex-row px-12" key={i}>
-            <h1>{`${k}:`}</h1>
-            <h2>{formatMinutesToStringDDhhmm(v)}</h2>
-          </div>
-        );
-      });
+  const values = result?.map(([k, v], i) => {
+    total += v;
+    return (
+      <div className="justify-between flex flex-row px-12" key={i}>
+        <h1>{`${k}:`}</h1>
+        <h2>{formatMinutesToStringDDhhmm(v)}</h2>
+      </div>
+    );
+  });
 
   return (
     <footer className="w-full items-center">

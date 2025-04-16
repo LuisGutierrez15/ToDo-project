@@ -1,7 +1,7 @@
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { deleteToDo, getToDos, markDone, markUnDone } from "../api/toDoService";
 import { ToDo } from "../types/ToDo";
-import { ChangeEvent, Dispatch, SetStateAction } from "react";
+import { ChangeEvent, Dispatch, RefObject, SetStateAction } from "react";
 import { UnknownAction } from "@reduxjs/toolkit";
 import { deleteRow, updateRow } from "../store/slices/rowsSlice";
 import { SelectChangeEvent } from "@mui/material";
@@ -50,7 +50,7 @@ const handleDeleteRow = async (
   id: number,
   dispatch: Dispatch<UnknownAction>,
   setIsLoading: Dispatch<SetStateAction<boolean>>,
-  params: Parameters
+  params: Parameters | null
 ) => {
   const response = await deleteToDo(id);
   if (response.message === "success") {
@@ -93,6 +93,16 @@ const handleClearError = (setError: Dispatch<SetStateAction<string>>) => {
   setError("");
 };
 
+const handleOnSubmit = (
+  inputRef: RefObject<HTMLInputElement | null>,
+  setText: Dispatch<SetStateAction<string>>
+) => {
+  if (inputRef.current) {
+    setText(inputRef.current.value);
+    inputRef.current.value = "";
+  }
+};
+
 export {
   handleDeleteRow,
   handleDueDateChange,
@@ -101,4 +111,5 @@ export {
   handleSelectionChange,
   handleTextChange,
   handleClearError,
+  handleOnSubmit,
 };

@@ -22,7 +22,6 @@ export type DataTableProps = {
 };
 
 export const useFetchToDos = ({ name, priority, complete }: DataTableProps) => {
-  const params = useSelector(selectParams);
   const dispatch = useDispatch();
   const rowsInfo = useSelector(selectAllToDos);
   const rowCount = rowsInfo.rowsCount;
@@ -49,9 +48,11 @@ export const useFetchToDos = ({ name, priority, complete }: DataTableProps) => {
       sortByPriority: sortModel.find((s) => s.field == "priority")?.sort,
       sortByDueDate: sortModel.find((s) => s.field == "dueDate")?.sort,
     };
+
     dispatch(setParams(parameters));
   }, [sortModel, paginationModel, name, priority, complete]);
 
+  const params = useSelector(selectParams);
   useEffect(() => {
     const fetchData = async () => {
       const response = await getToDos(params);
@@ -66,7 +67,10 @@ export const useFetchToDos = ({ name, priority, complete }: DataTableProps) => {
       const ids = handlePreSelectedRows(response.data);
       setSelectionModel(ids);
     };
-    fetchData();
+
+    if (params) {
+      fetchData();
+    }
     setIsLoading(false);
   }, [params]);
 

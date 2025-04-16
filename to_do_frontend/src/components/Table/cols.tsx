@@ -16,7 +16,7 @@ export const cols = (
   setSuccess: Dispatch<SetStateAction<boolean>>,
   setIsLoading: Dispatch<SetStateAction<boolean>>,
   dispatch: Dispatch<UnknownAction>,
-  parameters: Parameters
+  parameters: Parameters | null
 ): GridColDef<ToDo>[] => [
   {
     field: "text",
@@ -60,7 +60,7 @@ export const cols = (
         <ButtonEditTodo row={params.row} setSuccess={setSuccess} />,
         <GridActionsCellItem
           icon={<Delete />}
-          label="Delete"
+          label={`delete-${params.row.id}`}
           onClick={() => {
             setIsLoading(true);
             handleDeleteRow(params.row.id!, dispatch, setIsLoading, parameters);

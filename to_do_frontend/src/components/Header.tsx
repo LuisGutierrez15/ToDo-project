@@ -1,9 +1,10 @@
-import { Dispatch, FC, SetStateAction, useRef } from "react";
+import { Dispatch, FC, SetStateAction, useRef, KeyboardEvent } from "react";
 
 import StatusSelection from "./StatusSelection";
 import PrioritySelection from "./PrioritySelection";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import { handleOnSubmit } from "../helpers/handlersHelpers";
 
 type HeaderProps = {
   setText: Dispatch<SetStateAction<string>>;
@@ -13,10 +14,9 @@ type HeaderProps = {
 
 const Header: FC<HeaderProps> = ({ setText, setPriority, setStatus }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const handleOnSubmit = () => {
-    if (inputRef.current) {
-      setText(inputRef.current.value);
-      inputRef.current.value = "";
+  const handleEnterKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter") {
+      handleOnSubmit(inputRef, setText);
     }
   };
   return (
@@ -30,14 +30,19 @@ const Header: FC<HeaderProps> = ({ setText, setPriority, setStatus }) => {
             label="Name"
             variant="filled"
             color="info"
+            onKeyDown={handleEnterKeyDown}
           />
         </div>
-        <div className="flex-row flex justify-between items-center">
+        <div className="sm:flex-row flex justify-between sm:items-center flex-col">
           <div className="flex">
             <PrioritySelection setValue={setPriority} />
             <StatusSelection setValue={setStatus} />
           </div>
-          <Button color="info" variant="contained" onClick={handleOnSubmit}>
+          <Button
+            color="info"
+            variant="contained"
+            onClick={() => handleOnSubmit(inputRef, setText)}
+          >
             Search
           </Button>
         </div>

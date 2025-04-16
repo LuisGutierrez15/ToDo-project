@@ -1,5 +1,5 @@
 import { SnackbarCloseReason } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const useCloseModal = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -13,6 +13,17 @@ export const useCloseModal = () => {
     }
     setSuccess(false);
   };
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setModalOpen(false);
+        setSuccess(false);
+      }
+      window.addEventListener("keydown", handleKey);
+      return () => window.removeEventListener("keydown", handleKey);
+    };
+  }, []);
 
   return {
     modalOpen,

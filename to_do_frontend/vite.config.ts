@@ -8,6 +8,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   test: {
     globals: true,
+    environment: "jsdom",
+    setupFiles: "./vitest.setup.ts",
   },
   server: {
     port: 8080,

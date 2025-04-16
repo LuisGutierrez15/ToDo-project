@@ -25,7 +25,7 @@ const ButtonEditTodo: FC<ButtonEditTodoProps> = ({ row, setSuccess }) => {
       </Modal>
       <GridActionsCellItem
         icon={<Edit />}
-        label="Edit"
+        label={`edit-${row.id}`}
         disabled={row.doneFlag}
         className="textPrimary"
         onClick={() => {

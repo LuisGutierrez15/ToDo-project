@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGridPro } from "@mui/x-data-grid-pro";
 import { Alert, Box, Snackbar } from "@mui/material";
 import { useFetchToDos, DataTableProps } from "../../hooks/useFetchToDos";
 import { getRowClassName } from "../../helpers/styleHelpers";
@@ -37,7 +37,8 @@ const DataTable: FC<DataTableProps> = ({
     <Box
       sx={{
         height: 500,
-        width: "100%",
+        width: "calc(100vw - 3%)",
+
         "& .actions": {
           color: "text.secondary",
         },
@@ -46,13 +47,14 @@ const DataTable: FC<DataTableProps> = ({
         },
       }}
     >
-      <DataGrid
+      <DataGridPro
         className={className}
         loading={isLoading}
         rows={rows}
         columns={columns}
         rowCount={rowCount}
         checkboxSelection
+        pagination
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         pageSizeOptions={[5, 10, 20]}
