@@ -1,5 +1,6 @@
 package com.gupiluan.to_do_backend.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -9,6 +10,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -223,6 +225,39 @@ public class ToDoServiceTest {
         Long id = 1L;
         ToDo deleted = toDoService.deleteToDo(id);
         assertNotNull(deleted);
+    }
+
+    @Test
+    @Order(19)
+    public void createManyToDos() {
+        createToDo();
+        assertTrue(toDos.size() == 0);
+        ToDo toDo = new ToDo(null, "test", null, Priority.MEDIUM);
+        ToDo toDo2 = new ToDo(null, "test1", null, Priority.HIGH);
+        ToDo toDo3 = new ToDo(null, "test2", null, Priority.LOW);
+        ToDo toDo4 = new ToDo(null, "test3", null, Priority.MEDIUM);
+        List<ToDo> req = List.of(toDo, toDo2, toDo3, toDo4);
+
+        int errors = toDoService.createToDos(req);
+        assertFalse(toDos.size() == 0);
+        assertEquals(0, errors);
+
+    }
+
+    @Test
+    @Order(20)
+    public void createManyToDosWithErrors() {
+        createToDo();
+        String textgreater120 = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest" +
+                "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
+        ToDo toDo = new ToDo(null, "test", null, Priority.MEDIUM);
+        ToDo toDo2 = new ToDo(null, "test1", null, null);
+        ToDo toDo3 = new ToDo(null, "test2", null, Priority.LOW);
+        ToDo toDo4 = new ToDo(null, textgreater120, null, Priority.MEDIUM);
+        List<ToDo> req = List.of(toDo, toDo2, toDo3, toDo4);
+        int errors = toDoService.createToDos(req);
+        assertEquals(2, errors);
+
     }
 
     private void createToDo() {

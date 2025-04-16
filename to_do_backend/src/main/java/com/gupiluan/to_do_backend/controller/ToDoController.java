@@ -62,6 +62,14 @@ public class ToDoController {
         return new ResponseEntity<>(response, created != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST);
     }
 
+    @PostMapping("/many")
+    public ResponseEntity<ApiResponse<Integer>> createToDos(@RequestBody List<ToDo> toDos) {
+        int errors = toDoService.createToDos(toDos);
+        String message = errors == 0 ? "success" : "error";
+        ApiResponse<Integer> response = new ApiResponse<>(message, errors);
+        return new ResponseEntity<>(response, errors == 0 ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Boolean>> updateToDo(@RequestBody @Valid ToDo toDo, @PathVariable Long id) {
         boolean updated = toDoService.updateToDo(id, toDo);

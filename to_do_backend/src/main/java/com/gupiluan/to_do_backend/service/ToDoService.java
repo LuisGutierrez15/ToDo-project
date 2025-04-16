@@ -31,6 +31,18 @@ public class ToDoService {
                 : null;
     }
 
+    public int createToDos(List<ToDo> toDos) {
+        int fail = 0;
+        for (ToDo toDo : toDos) {
+            if (toDo.getText().length() > 0 && toDo.getText().length() <= 120 && toDo.getPriority() != null) {
+                toDoRepository.save(toDo);
+                continue;
+            }
+            fail++;
+        }
+        return fail;
+    }
+
     public Pagination<List<ToDo>> getAllToDos(int page, int size, String name, String complete, Priority priority,
             String sortByDueDate, String sortByPriority) {
 
