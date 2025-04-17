@@ -30,7 +30,7 @@ const rowSlice = createSlice({
         state.rows.push(action.payload);
       }
       state.paginationModel = {
-        page: state.paginationModel?.page! + 1,
+        page: Math.ceil(state.rowsCount / state.paginationModel?.pageSize!) + 1,
         pageSize: state.paginationModel?.pageSize!,
       };
       state.rowsCount += 1;
