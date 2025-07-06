@@ -19,8 +19,9 @@ A RESTful API built with Java 21 and Spring Boot to manage tasks in a to-do list
 | GET    | `/todos`             | Get all tasks                |
 | GET    | `/todos/{id}`        | Get a specific task by ID    |
 | GET    | `/todos/stats`       | Get task metrics by priority |
+| GET    | `/todos/overdue`     | Get overdue ToDos            |
 | POST   | `/todos`             | Create a new task            |
-| POST   | `/todos/many`        | Create multiple tasks        |
+| POST   | `/todos/batch`       | Create multiple tasks        |
 | POST   | `/todos/{id}/done`   | Mark a task as done          |
 | PUT    | `/todos/{id}`        | Update an existing task      |
 | PUT    | `/todos/{id}/undone` | Mark a task as undone        |
