@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -23,6 +24,11 @@ import com.gupiluan.to_do_backend.model.ToDo;
  * Provides efficient data access operations using HashMap storage.
  * Includes pagination and filtering capabilities similar to JPA repositories.
  * 
+ * This implementation is thread-safe using ReentrantReadWriteLock:
+ * - Multiple readers can access data concurrently
+ * - Writers have exclusive access, blocking all readers and other writers
+ * - Ensures data consistency and prevents race conditions
+ * 
  * @author gupiluan
  */
 @Repository
@@ -34,73 +40,116 @@ public class ToDoRepository implements IToDoRepository {
     /** Counter for generating unique IDs */
     private Long idCounter = 1L;
 
+    /** ReadWrite lock for thread-safe data access */
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+
     @Override
     public Optional<ToDo> findById(Long id) {
-        return Optional.ofNullable(toDos.get(id));
+        lock.readLock().lock();
+        try {
+            return Optional.ofNullable(toDos.get(id));
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public ToDo save(ToDo toDo) {
-        if (toDo.getId() == null) {
-            toDo.setId(idCounter++);
-            if (toDo.getCreationTime() == null) {
-                toDo.setCreationTime(LocalDateTime.now());
+        lock.writeLock().lock();
+        try {
+            if (toDo.getId() == null) {
+                toDo.setId(idCounter++);
+                if (toDo.getCreationTime() == null) {
+                    toDo.setCreationTime(LocalDateTime.now());
+                }
             }
+            toDos.put(toDo.getId(), toDo);
+            return toDo;
+        } finally {
+            lock.writeLock().unlock();
         }
-        toDos.put(toDo.getId(), toDo);
-        return toDo;
     }
 
     @Override
     public boolean update(ToDo toDo) {
-        if (toDo.getId() == null || !toDos.containsKey(toDo.getId())) {
-            return false;
-        }
+        lock.writeLock().lock();
+        try {
+            if (toDo.getId() == null || !toDos.containsKey(toDo.getId())) {
+                return false;
+            }
 
-        ToDo existing = toDos.get(toDo.getId());
-        // Preserve creation time during updates
-        if (existing.getCreationTime() != null) {
-            toDo.setCreationTime(existing.getCreationTime());
-        }
+            ToDo existing = toDos.get(toDo.getId());
+            // Preserve creation time during updates
+            if (existing.getCreationTime() != null) {
+                toDo.setCreationTime(existing.getCreationTime());
+            }
 
-        toDos.put(toDo.getId(), toDo);
-        return true;
+            toDos.put(toDo.getId(), toDo);
+            return true;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     @Override
     public ToDo deleteByIdAndReturn(Long id) {
-        return toDos.remove(id);
+        lock.writeLock().lock();
+        try {
+            return toDos.remove(id);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     @Override
     public void deleteAll() {
-        toDos.clear();
-        idCounter = 1L; // Reset the ID counter
+        lock.writeLock().lock();
+        try {
+            toDos.clear();
+            idCounter = 1L; // Reset the ID counter
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     @Override
     public List<ToDo> findAll() {
-        return toDos.values().stream()
-                .sorted((a, b) -> a.getId().compareTo(b.getId()))
-                .collect(Collectors.toList());
+        lock.readLock().lock();
+        try {
+            return toDos.values().stream()
+                    .sorted((a, b) -> a.getId().compareTo(b.getId()))
+                    .collect(Collectors.toList());
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public Page<ToDo> findWithFilters(String text, Boolean doneFlag, Priority priority, Pageable pageable) {
-        List<ToDo> filtered = toDos.values().stream()
-                .filter(t -> text == null || t.getText().toLowerCase().contains(text.toLowerCase()))
-                .filter(t -> doneFlag == null || t.isDoneFlag() == doneFlag)
-                .filter(t -> priority == null || t.getPriority() == priority)
-                .collect(Collectors.toList());
+        lock.readLock().lock();
+        try {
+            List<ToDo> filtered = toDos.values().stream()
+                    .filter(t -> text == null || t.getText().toLowerCase().contains(text.toLowerCase()))
+                    .filter(t -> doneFlag == null || t.isDoneFlag() == doneFlag)
+                    .filter(t -> priority == null || t.getPriority() == priority)
+                    .collect(Collectors.toList());
 
-        return createPage(filtered, pageable);
+            return createPage(filtered, pageable);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public List<ToDo> findCompletedByPriority(Priority priority) {
-        return toDos.values().stream()
-                .filter(t -> t.isDoneFlag() && t.getPriority() == priority)
-                .collect(Collectors.toList());
+        lock.readLock().lock();
+        try {
+            return toDos.values().stream()
+                    .filter(t -> t.isDoneFlag() && t.getPriority() == priority)
+                    .collect(Collectors.toList());
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
@@ -110,24 +159,39 @@ public class ToDoRepository implements IToDoRepository {
 
     @Override
     public List<ToDo> findByDoneFlag(boolean doneFlag) {
-        return toDos.values().stream()
-                .filter(t -> t.isDoneFlag() == doneFlag)
-                .collect(Collectors.toList());
+        lock.readLock().lock();
+        try {
+            return toDos.values().stream()
+                    .filter(t -> t.isDoneFlag() == doneFlag)
+                    .collect(Collectors.toList());
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public List<ToDo> findByPriority(Priority priority) {
-        return toDos.values().stream()
-                .filter(t -> t.getPriority() == priority)
-                .collect(Collectors.toList());
+        lock.readLock().lock();
+        try {
+            return toDos.values().stream()
+                    .filter(t -> t.getPriority() == priority)
+                    .collect(Collectors.toList());
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public List<ToDo> findByDueDateBeforeAndDoneFlagFalse(LocalDateTime date) {
-        return toDos.values().stream()
-                .filter(t -> !t.isDoneFlag())
-                .filter(t -> t.getDueDate() != null && t.getDueDate().isBefore(date))
-                .collect(Collectors.toList());
+        lock.readLock().lock();
+        try {
+            return toDos.values().stream()
+                    .filter(t -> !t.isDoneFlag())
+                    .filter(t -> t.getDueDate() != null && t.getDueDate().isBefore(date))
+                    .collect(Collectors.toList());
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     /**
@@ -165,7 +229,6 @@ public class ToDoRepository implements IToDoRepository {
                     for (Order order : sort) {
                         String property = order.getProperty();
                         boolean ascending = order.isAscending();
-                        System.out.println();
                         int comparison = compareByField(a, b, property);
 
                         if (comparison != 0) {
@@ -202,7 +265,7 @@ public class ToDoRepository implements IToDoRepository {
                     return -1;
                 return a.getDueDate().compareTo(b.getDueDate());
             case "priority":
-                return Integer.compare(a.getPriority().getRank(), b.getPriority().getRank());
+                return Priority.BY_RANK_ASC.compare(a.getPriority(), b.getPriority());
             case "creationTime":
                 return a.getCreationTime().compareTo(b.getCreationTime());
             case "doneFlag":
