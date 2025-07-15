@@ -1,43 +1,53 @@
-import { ChangeEvent, FC } from "react";
-import { Option } from "../types/Option";
+import { ChangeEvent, FC } from 'react';
+import { Option } from '../types/Option';
 
 type DropdownProps = {
   label: string;
   options: Option[];
-  onChange: (value: number) => void;
+  value?: number | null;
+  onChange: (value: number | null) => void;
 };
 
-const Dropdown: FC<DropdownProps> = ({ label, options, onChange }) => {
+const Dropdown: FC<DropdownProps> = ({ label, options, value, onChange }) => {
   return (
-    <>
-      <div className="p-1 flex-row flex items-center text-center justify-evenly">
-        <label
-          htmlFor={`dropdown-${label}`}
-          className="ml-2 block text-base font-medium text-shadow text-gray-500 min-w-1/2"
+    <div className='w-full'>
+      <label
+        htmlFor={`dropdown-${label}`}
+        className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'
+      >
+        {label}
+      </label>
+      <div className='relative'>
+        <select
+          id={`dropdown-${label}`}
+          value={value ?? ''}
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+            const selectedValue = e.target.value;
+            onChange(selectedValue === '' ? null : parseInt(selectedValue));
+          }}
+          className='w-full appearance-none rounded-xl border-2 border-gray-200/70 dark:border-gray-600/70 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm py-3 px-4 pr-10 text-gray-900 dark:text-gray-100 text-sm font-medium outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 hover:border-gray-300 dark:hover:border-gray-500 cursor-pointer shadow-sm hover:shadow-md'
         >
-          {label}
-        </label>
-        <div className="relative z-20">
-          <select
-            id={`dropdown-${label}`}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-              onChange(e.target.value as unknown as number)
-            }
-            className="cursor-pointer relative z-20 w-fit appearance-none rounded-lg border border-stroke border-gray-300 bg-transparent py-[10px] pl-1.5 pr-9 text-gray-400 outline-none transition focus:border-gray-500 active:border-gray-400 disabled:cursor-default disabled:bg-gray-200"
-          >
-            <option value={undefined} className="dark:bg-dark-2">
-              All
+          <option value='' className='bg-white dark:bg-gray-700'>
+            All
+          </option>
+          {options.map((o: Option, i: number) => (
+            <option className='bg-white dark:bg-gray-700' key={i} value={o.value}>
+              {o.label}
             </option>
-            {options.map((o: Option, i: number) => (
-              <option className="dark:bg-dark-2" key={i} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-          <span className="absolute right-4 top-1/2 z-10 mt-[-2px] h-[10px] w-[10px] -translate-y-1/2 rotate-45 border-r-2 border-b-2 border-gray-400"></span>
+          ))}
+        </select>
+        <div className='absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none'>
+          <svg
+            className='w-4 h-4 text-gray-400'
+            fill='none'
+            stroke='currentColor'
+            viewBox='0 0 24 24'
+          >
+            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+          </svg>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

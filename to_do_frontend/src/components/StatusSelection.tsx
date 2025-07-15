@@ -1,25 +1,26 @@
-import { Dispatch, FC, SetStateAction } from "react";
-import { Option } from "../types/Option";
-import { Status } from "../types/Status";
-import Dropdown from "./Dropdown";
+import { FC } from 'react';
+import { Option } from '../types/Option';
+import { Status } from '../types/Status';
+import Dropdown from './Dropdown';
 
 const options: Option[] = [
   {
     value: Status.DONE,
-    label: "Done",
+    label: 'Done',
   },
   {
     value: Status.UNDONE,
-    label: "Undone",
+    label: 'Undone',
   },
 ];
 
 type StatusSelectionProps = {
-  setValue: Dispatch<SetStateAction<number | null>>;
+  value?: number | null;
+  setValue: (value: number | null) => void;
 };
 
-const StatusSelection: FC<StatusSelectionProps> = ({ setValue }) => {
-  return <Dropdown onChange={setValue} options={options} label="State" />;
+const StatusSelection: FC<StatusSelectionProps> = ({ value, setValue }) => {
+  return <Dropdown onChange={setValue} options={options} label='State' value={value} />;
 };
 
 export default StatusSelection;
