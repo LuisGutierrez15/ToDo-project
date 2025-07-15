@@ -3,61 +3,82 @@ import {
   GridColDef,
   GridRenderCellParams,
   GridRowParams,
-} from "@mui/x-data-grid";
-import { ToDo } from "../../types/ToDo";
-import ButtonEditTodo from "../EditToDo/ButtonEditTodo";
-import { Delete } from "@mui/icons-material";
-import { handleDeleteRow } from "../../helpers/handlersHelpers";
-import { Dispatch, SetStateAction } from "react";
-import { UnknownAction } from "@reduxjs/toolkit";
-import { Parameters } from "../../types/Parameters";
+} from '@mui/x-data-grid';
+import { ToDo } from '../../types/ToDo';
+import ButtonEditTodo from '../EditToDo/ButtonEditTodo';
+import { Delete } from '@mui/icons-material';
+import { handleDeleteRow } from '../../helpers/handlersHelpers';
+import { Dispatch, SetStateAction } from 'react';
+import { UnknownAction } from '@reduxjs/toolkit';
+import { Parameters } from '../../types/Parameters';
+import { Typography } from '@mui/material';
+import PriorityBadge from './PriorityBadge';
+import DueDateChip from './DueDateChip';
 
 export const cols = (
-  setSuccess: Dispatch<SetStateAction<boolean>>,
   setIsLoading: Dispatch<SetStateAction<boolean>>,
   dispatch: Dispatch<UnknownAction>,
   parameters: Parameters | null
 ): GridColDef<ToDo>[] => [
   {
-    field: "text",
-    headerName: "Name",
-    flex: 1,
+    field: 'text',
+    headerName: '📋 Task Name',
+    flex: 1.5,
+    minWidth: 200,
     sortable: false,
+    renderCell: (params: GridRenderCellParams<ToDo>) => (
+      <Typography
+        variant='body2'
+        sx={{
+          fontWeight: 500,
+          fontSize: '0.875rem',
+          color: 'text.primary',
+          textDecoration: params.row.doneFlag ? 'line-through' : 'none',
+          textDecorationColor: params.row.doneFlag ? 'success.main' : 'transparent',
+          opacity: params.row.doneFlag ? 0.7 : 1,
+          lineHeight: 1.4,
+          whiteSpace: 'normal',
+          wordBreak: 'break-word',
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            color: 'primary.main',
+          },
+        }}
+      >
+        {params.value}
+      </Typography>
+    ),
   },
-  { field: "priority", headerName: "Priority", flex: 1, sortable: true },
   {
-    field: "dueDate",
-    headerName: "Due Date",
-    flex: 1,
+    field: 'priority',
+    headerName: '🎯 Priority',
+    flex: 0.8,
+    minWidth: 120,
     sortable: true,
-    valueGetter: (value) => {
-      if (!value) {
-        return null;
-      }
-      return new Date(value).toLocaleString();
-    },
-    renderCell: (params: GridRenderCellParams<ToDo>) => {
-      const classNameIfPresent = params.row.dueDate
-        ? ""
-        : "text-xs text-blue-300";
-
-      return (
-        <span className={classNameIfPresent}>
-          {params.row.dueDate ? params.value : "Not assigned yet"}
-        </span>
-      );
-    },
+    align: 'center',
+    headerAlign: 'center',
+    renderCell: (params: GridRenderCellParams<ToDo>) => <PriorityBadge priority={params.value} />,
   },
-
   {
-    field: "actions",
-    type: "actions",
-    headerName: "Actions",
-    width: 100,
-    cellClassName: "actions",
+    field: 'dueDate',
+    headerName: '📅 Due Date',
+    flex: 1.2,
+    minWidth: 160,
+    sortable: true,
+    align: 'center',
+    headerAlign: 'center',
+    renderCell: (params: GridRenderCellParams<ToDo>) => <DueDateChip task={params.row} />,
+  },
+  {
+    field: 'actions',
+    type: 'actions',
+    headerName: '⚙️ Actions',
+    width: 120,
+    headerAlign: 'center',
+    cellClassName: 'actions',
     getActions: (params: GridRowParams<ToDo>) => {
       return [
-        <ButtonEditTodo row={params.row} setSuccess={setSuccess} />,
+        <ButtonEditTodo row={params.row} key={`edit-${params.row.id}`} />,
         <GridActionsCellItem
           icon={<Delete />}
           label={`delete-${params.row.id}`}
@@ -65,7 +86,15 @@ export const cols = (
             setIsLoading(true);
             handleDeleteRow(params.row.id!, dispatch, setIsLoading, parameters);
           }}
-          color="inherit"
+          color='inherit'
+          key={`delete-${params.row.id}`}
+          sx={{
+            transition: 'all 0.2s ease-in-out',
+            '&:hover': {
+              color: 'error.main',
+              transform: 'scale(1.1)',
+            },
+          }}
         />,
       ];
     },

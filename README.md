@@ -24,7 +24,7 @@ This project showcases an minimalist UI using MUI, practical filtering and sorti
 
 ---
 
-#### More info can be found in its own README file
+#### More info can be found in frontend's README file
 
 ---
 
@@ -37,7 +37,7 @@ This project showcases an minimalist UI using MUI, practical filtering and sorti
 
 ---
 
-#### More info can be found in its own README file
+#### More info can be found backend's README file
 
 ---
 

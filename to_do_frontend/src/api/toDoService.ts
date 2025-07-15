@@ -1,88 +1,136 @@
-import axios from "axios";
-import { axiosInstance } from "./axiosInstance";
-import { Parameters } from "../types/Parameters";
-import { ToDo } from "../types/ToDo";
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import { axiosInstance } from './axiosInstance';
+import { Parameters } from '../types/Parameters';
+import { ToDo } from '../types/ToDo';
 
-export const getToDos = async (params: Parameters | null) => {
-  try {
-    const response = await axiosInstance.get("", { params });
+/**
+ * API Response types for better type safety
+ * Matches backend ApiResponse<T> and Pagination<T> structures
+ */
+interface APIResponse<T = unknown> {
+  message: string;
+  data: T;
+}
+
+interface PaginatedAPIResponse<T = unknown> {
+  message: string;
+  data: T;
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+}
+
+interface APIError {
+  message: string;
+  error?: string;
+  statusCode?: number;
+}
+
+/**
+ * Generic error handler for API requests
+ */
+const handleAPIError = (error: unknown): APIError => {
+  if (axios.isAxiosError(error)) {
+    const axiosError = error as AxiosError<APIError>;
+    return {
+      message: axiosError.response?.data?.message || 'An error occurred',
+      error: axiosError.response?.data?.error || axiosError.message,
+      statusCode: axiosError.response?.status,
+    };
+  }
+
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      error: 'Unknown error',
+    };
+  }
+
+  return {
+    message: 'An unexpected error occurred',
+    error: 'Unknown error',
+  };
+};
+
+/**
+ * Helper to extract data from response or return error
+ */
+const processResponse = <T>(response: AxiosResponse<T> | undefined): T | APIError => {
+  if (response?.data) {
     return response.data;
+  }
+  return {
+    message: 'No response data',
+    error: 'Empty response',
+    statusCode: response?.status,
+  };
+};
+
+export const getToDos = async (
+  params: Parameters | null
+): Promise<PaginatedAPIResponse<ToDo[]> | APIError> => {
+  try {
+    const response = await axiosInstance.get<PaginatedAPIResponse<ToDo[]>>('', { params });
+    return processResponse(response) as PaginatedAPIResponse<ToDo[]>;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return error.response?.data;
-    }
-    throw error;
+    return handleAPIError(error);
   }
 };
 
-export const getStats = async () => {
+export const getStats = async (): Promise<APIResponse | APIError> => {
   try {
-    const response = await axiosInstance.get("/stats");
-    return response.data;
+    const response = await axiosInstance.get<APIResponse>('/stats');
+    return processResponse(response) as APIResponse;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return error.response?.data;
-    }
-    throw error;
+    return handleAPIError(error);
   }
 };
 
-export const createToDo = async (toDo: ToDo) => {
+export const createToDo = async (toDo: ToDo): Promise<APIResponse<ToDo> | APIError> => {
   try {
-    const response = await axiosInstance.post("", toDo);
-    return response.data;
+    const response = await axiosInstance.post<APIResponse<ToDo>>('', toDo);
+    return processResponse(response) as APIResponse<ToDo>;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return error.response?.data;
-    }
-    throw error;
+    return handleAPIError(error);
   }
 };
 
-export const markDone = async (id: number) => {
+export const markDone = async (id: number): Promise<APIResponse<boolean> | APIError> => {
   try {
-    const response = await axiosInstance.post(`/${id}/done`);
-    return response.data;
+    const response = await axiosInstance.post<APIResponse<boolean>>(`/${id}/done`);
+    return processResponse(response) as APIResponse<boolean>;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return error.response?.data;
-    }
-    throw error;
+    return handleAPIError(error);
   }
 };
 
-export const markUnDone = async (id: number) => {
+export const markUnDone = async (id: number): Promise<APIResponse<boolean> | APIError> => {
   try {
-    const response = await axiosInstance.put(`/${id}/undone`);
-    return response.data;
+    const response = await axiosInstance.put<APIResponse<boolean>>(`/${id}/undone`);
+    return processResponse(response) as APIResponse<boolean>;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return error.response?.data;
-    }
-    throw error;
+    return handleAPIError(error);
   }
 };
 
-export const updateToDo = async (id: number, toDoUpdated: ToDo) => {
+export const updateToDo = async (
+  id: number,
+  toDoUpdated: ToDo
+): Promise<APIResponse<boolean> | APIError> => {
   try {
-    const response = await axiosInstance.put(`/${id}`, toDoUpdated);
-    return response.data;
+    const response = await axiosInstance.put<APIResponse<boolean>>(`/${id}`, toDoUpdated);
+    return processResponse(response) as APIResponse<boolean>;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return error.response?.data;
-    }
-    throw error;
+    return handleAPIError(error);
   }
 };
 
-export const deleteToDo = async (id: number) => {
+export const deleteToDo = async (id: number): Promise<APIResponse<boolean> | APIError> => {
   try {
-    const response = await axiosInstance.delete(`/${id}`);
-    return response.data;
+    const response = await axiosInstance.delete<APIResponse<boolean>>(`/${id}`);
+    return processResponse(response) as APIResponse<boolean>;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return error.response?.data;
-    }
-    throw error;
+    return handleAPIError(error);
   }
 };
