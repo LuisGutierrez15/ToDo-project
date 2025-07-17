@@ -88,7 +88,14 @@ npm run tests
 
 ## Screenshot
 
+### Old version
+
 ![Screenshot](./screenshots/ss.png)
+
+### New version
+
+![Screenshot](./screenshots/ssnew1.png)
+![Screenshot](./screenshots/ssnew2.png)
 
 ## License
 
